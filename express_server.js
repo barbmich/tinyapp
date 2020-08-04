@@ -5,14 +5,14 @@ const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
-const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
-};
-
 // allows the use of Express js framework and body-parser, a body parsing middleware
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+
+const urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com",
+};
 
 // generates 6-digits random value in base 36 (alpha-numerical values)
 function generateRandomString() {
@@ -27,12 +27,25 @@ app.post("/urls", (req, res) => {
   res.redirect(302, "/urls");              // redirects the user to a webpage that outputs the newly created key-value
 });
 
+app.post("/urls/:shortURL", (req, res) => {
+  let shortURL = req.params.shortURL;
+  let longURL = req.body.longURL;
+  urlDatabase[shortURL] = longURL;
+  res.redirect(302, "/urls");
+});
+
+// app.get("/urls/:shortURL?", (req, res) => {
+//   let shortURL = req.params.shortURL;
+//   res.redirect(302, `/urls/:${shortURL}`)
+// })
+
 // post request to delete a key of the object
 app.post("/urls/:shortURL/delete", (req, res) => {  //
   let shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
   res.redirect("/urls")
 })
+
 // app.get("/", (req, res) => {            // homepage is useless for now        
 //   res.send("Hello!");
 // });
@@ -62,6 +75,7 @@ app.get("/u/:shortURL", (req, res) => {     // get request that allows us to rea
   const longURL = urlDatabase[shortURL];    // the server checks if a key matching shortURL exists. if so, the user is redirected
   res.redirect(302, longURL);               // to the longURL address.
 })
+
 
 // app.get("/hello", (req, res) => {        // useless for now.
 //   res.send("<html><body>Hello <b>World</b></body></html>\n");
