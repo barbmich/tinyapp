@@ -24,9 +24,15 @@ app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();   // it assign randomized 6-digit value to shortURL, 
   let longURL = req.body.longURL;          // key longURL attached to the parsed body of the request form.
   urlDatabase[shortURL] = longURL;         // it adds the shortURL-longURL key-value to our initial urlDatabase object.
-  res.redirect(302, `/urls/${shortURL}`);  // redirects the user to a webpage that outputs the newly created key-value
+  res.redirect(302, "/urls");              // redirects the user to a webpage that outputs the newly created key-value
 });
 
+// post request to delete a key of the object
+app.post("/urls/:shortURL/delete", (req, res) => {  //
+  let shortURL = req.params.shortURL;
+  delete urlDatabase[shortURL];
+  res.redirect("/urls")
+})
 // app.get("/", (req, res) => {            // homepage is useless for now        
 //   res.send("Hello!");
 // });
