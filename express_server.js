@@ -63,14 +63,13 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {};              // key longURL attached to the parsed body of the request form.
   urlDatabase[shortURL].longURL = longURL; // it adds the shortURL-longURL key-value to our initial urlDatabase object.
   urlDatabase[shortURL].userID = userID;
-  console.log(urlDatabase)
   res.redirect(302, "/urls");              // redirects the user to a webpage that outputs the newly created key-value
 });
 
 app.post("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect(302, "/urls");
 });
 
@@ -99,12 +98,12 @@ app.post("/login", (req, res) => {
 app.post("/urls/:shortURL/delete", (req, res) => {  //
   let shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-  res.redirect(302, "/urls")
+  res.redirect(302, "/urls");
 })
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect(302, "/urls")
+  res.redirect(302, "/urls");
 });
 
 app.post("/register", (req, res) => {
@@ -130,7 +129,7 @@ app.get("/urls.json", (req, res) => {       // displays our urlDatabase object i
 })
 
 app.get("/urls", (req, res) => {
-  const user = users[req.cookies.user_id];         // templateVars is assigned to an object. res.render is middleware through the HTML
+  const user = users[req.cookies.user_id];  // templateVars is assigned to an object. res.render is middleware through the HTML
   let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
     urls: urlDatabase,                      // each key-value property in a 2-columns table.
     user: user
@@ -155,14 +154,15 @@ app.get("/register", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL];
+  const longURL = urlDatabase[shortURL].longURL;
   let templateVars = { shortURL, longURL, user: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 })
 
 app.get("/u/:shortURL", (req, res) => {     // get request that allows us to reach the longURL address through the shortURL link.
   const shortURL = req.params.shortURL;     // the req.params refers to the id in the address. when a get request is made,
-  const longURL = urlDatabase[shortURL];    // the server checks if a key matching shortURL exists. if so, the user is redirected
+  const longURL = urlDatabase[shortURL].longURL;
+  console.log(longURL)    // the server checks if a key matching shortURL exists. if so, the user is redirected
   res.redirect(302, longURL);               // to the longURL address.
 })
 
