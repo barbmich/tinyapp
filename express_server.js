@@ -36,18 +36,17 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2,8)
 };
 
-function checkRegisterValidity(submittedEmail, submittedPassword) {
-  if (!submittedEmail || !submittedPassword) {
-    console.log('registration failed: missing data in the form!')
+function accountValidity(email, password) {
+  if (!email || !password) {
+    console.log('failed: missing data in the form!')
     return false;
   }
   for (const user in users) {
-    if (users[user].email) {
-      console('registration failed: email already in use!')
+    if (users[user].email === email) {
       return false;
     }
   }
-  return true;
+  return true
 };
 
 // process the request form for a shortURL:
@@ -66,8 +65,24 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username); // <---- check what to do with this. should have an if/else ?
-  res.redirect(302, "/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  for (const user in users) {
+    if (users[user].email === email) {
+      if (users[user].password === password) {
+        res.cookie("user_id", users[user].id);
+        res.redirect("/urls");
+        return;
+      }
+      else {
+        res.sendStatus(403);
+        return;
+      }
+    }
+  }
+  res.sendStatus(403);
+
 });
 
 // post request to delete a key of the object
@@ -85,13 +100,13 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  if (checkRegisterValidity(email, password)) {
+  if (accountValidity(email, password)) {
     let userID = generateRandomString();
     users[userID] = {}
     users[userID].id = userID;
     users[userID].email = email;
     users[userID].password = password;
-    console.log('new user registered!')
+    // console.log('new user registered!')
     res.cookie("user_id", userID);
     res.redirect(302, "/urls");
   } else {
@@ -115,7 +130,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   let templateVars = {                      // provides a form where a longURL can be entered. when the request is sent (through
     user: users[req.cookies.user_id],      // the submit button), line 23 will pick up that post request
-  }        
+  }
   res.render("urls_new", templateVars);                   
 })
 
@@ -136,10 +151,11 @@ app.get("/u/:shortURL", (req, res) => {     // get request that allows us to rea
   res.redirect(302, longURL);               // to the longURL address.
 })
 
+app.get("/login", (req, res) => {
+  const templateVars = { error: "" };
+  res.render("urls_login", templateVars);
+})
 
-// app.get("/hello", (req, res) => {        // useless for now.
-//   res.send("<html><body>Hello <b>World</b></body></html>\n");
-// });
 
 app.listen(PORT, () => {                                  // allows the server to listen for requests made on a specific port (defined at the top) 
   console.log(`Example app listening on port ${PORT}!`);
