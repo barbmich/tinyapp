@@ -2,12 +2,14 @@
 // enstablishing constant variables that need to be defined first
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
 
 // allows the use of Express js framework and body-parser, a body parsing middleware
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
 
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
@@ -31,6 +33,11 @@ app.post("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
   urlDatabase[shortURL] = longURL;
+  res.redirect(302, "/urls");
+});
+
+app.post("/login", (req, res) => {
+  res.cookie("username", req.body.username);
   res.redirect(302, "/urls");
 });
 
