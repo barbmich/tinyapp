@@ -8,32 +8,38 @@ const PORT = 8080; // default port 8080
 
 // allows the use of Express js framework and body-parser, a body parsing middleware
 app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 // stores all links generated
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID" }
 };
 
+/* old database object:
+urlDatabase = {
+  "b2xVn2": "http://www.lighthouselabs.ca",
+  "9sm5xK": "http://www.google.com",
+}*/
+
 //
-const users = { 
+const users = {
   "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
+    id: "userRandomID",
+    email: "user@example.com",
     password: "purple-monkey-dinosaur"
   },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
+  "user2RandomID": {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "ppp"
   }
 }
 
 // generates 6-digits random value in base 36 (alpha-numerical values)
 function generateRandomString() {
-  return Math.random().toString(36).substring(2,8)
+  return Math.random().toString(36).substring(2, 8)
 };
 
 function accountValidity(email, password) {
@@ -50,10 +56,14 @@ function accountValidity(email, password) {
 };
 
 // process the request form for a shortURL:
-app.post("/urls", (req, res) => { 
+app.post("/urls", (req, res) => {
   let shortURL = generateRandomString();   // it assign randomized 6-digit value to shortURL, 
-  let longURL = req.body.longURL;          // key longURL attached to the parsed body of the request form.
-  urlDatabase[shortURL] = longURL;         // it adds the shortURL-longURL key-value to our initial urlDatabase object.
+  let longURL = req.body.longURL;
+  let userID = req.cookies.user_id
+  urlDatabase[shortURL] = {};              // key longURL attached to the parsed body of the request form.
+  urlDatabase[shortURL].longURL = longURL; // it adds the shortURL-longURL key-value to our initial urlDatabase object.
+  urlDatabase[shortURL].userID = userID;
+  console.log(urlDatabase)
   res.redirect(302, "/urls");              // redirects the user to a webpage that outputs the newly created key-value
 });
 
@@ -67,7 +77,7 @@ app.post("/urls/:shortURL", (req, res) => {
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  
+
   for (const user in users) {
     if (users[user].email === email) {
       if (users[user].password === password) {
@@ -94,7 +104,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {  //
 
 app.post("/logout", (req, res) => {
   res.clearCookie("user_id");
-  res.redirect(302, "/urls")});
+  res.redirect(302, "/urls")
+});
 
 app.post("/register", (req, res) => {
   const email = req.body.email;
@@ -118,20 +129,24 @@ app.get("/urls.json", (req, res) => {       // displays our urlDatabase object i
   res.json(urlDatabase);
 })
 
-app.get("/urls", (req, res) => {  
+app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];         // templateVars is assigned to an object. res.render is middleware through the HTML
   let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
     urls: urlDatabase,                      // each key-value property in a 2-columns table.
     user: user
-  };  
-  res.render("urls_index", templateVars);   
+  };
+  res.render("urls_index", templateVars);
 })
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {                      // provides a form where a longURL can be entered. when the request is sent (through
     user: users[req.cookies.user_id],      // the submit button), line 23 will pick up that post request
   }
-  res.render("urls_new", templateVars);                   
+  if (!templateVars.user) {
+    res.redirect("/login")
+  } else {
+    res.render("urls_new", templateVars)
+  };
 })
 
 app.get("/register", (req, res) => {
