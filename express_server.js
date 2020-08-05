@@ -11,10 +11,25 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
+// stores all links generated
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com",
 };
+
+//
+const users = { 
+  "userRandomID": {
+    id: "userRandomID", 
+    email: "user@example.com", 
+    password: "purple-monkey-dinosaur"
+  },
+ "user2RandomID": {
+    id: "user2RandomID", 
+    email: "user2@example.com", 
+    password: "dishwasher-funk"
+  }
+}
 
 // generates 6-digits random value in base 36 (alpha-numerical values)
 function generateRandomString() {
@@ -52,6 +67,15 @@ app.post("/logout", (req, res) => {
   res.clearCookie("username");
   res.redirect(302, "/urls")});
 
+app.post("/register", (req, res) => {
+  let userID = generateRandomString();
+  users[userID] = {}
+  users[userID].id = userID;
+  users[userID].email = req.body.email;
+  users[userID].password = req.body.password;
+  res.cookie("user_id", userID);
+  res.redirect(302, "/urls")
+})
 // app.get("/", (req, res) => {            // homepage is useless for now        
 //   res.send("Hello!");
 // });
@@ -72,6 +96,10 @@ app.get("/urls/new", (req, res) => {
     username: req.cookies["username"],      // the submit button), line 23 will pick up that post request
   }        
   res.render("urls_new", templateVars);                   
+})
+
+app.get("/register", (req, res) => {
+  res.render("urls_register")
 })
 
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
