@@ -36,6 +36,20 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2,8)
 };
 
+function checkRegisterValidity(submittedEmail, submittedPassword) {
+  if (!submittedEmail || !submittedPassword) {
+    console.log('registration failed: missing data in the form!')
+    return false;
+  }
+  for (const user in users) {
+    if (users[user].email) {
+      console('registration failed: email already in use!')
+      return false;
+    }
+  }
+  return true;
+};
+
 // process the request form for a shortURL:
 app.post("/urls", (req, res) => { 
   let shortURL = generateRandomString();   // it assign randomized 6-digit value to shortURL, 
@@ -68,13 +82,21 @@ app.post("/logout", (req, res) => {
   res.redirect(302, "/urls")});
 
 app.post("/register", (req, res) => {
-  let userID = generateRandomString();
-  users[userID] = {}
-  users[userID].id = userID;
-  users[userID].email = req.body.email;
-  users[userID].password = req.body.password;
-  res.cookie("user_id", userID);
-  res.redirect(302, "/urls");
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (checkRegisterValidity(email, password)) {
+    let userID = generateRandomString();
+    users[userID] = {}
+    users[userID].id = userID;
+    users[userID].email = email;
+    users[userID].password = password;
+    console.log('new user registered!')
+    res.cookie("user_id", userID);
+    res.redirect(302, "/urls");
+  } else {
+    res.redirect(400, "/urls");
+  }
 })
 
 app.get("/urls.json", (req, res) => {       // displays our urlDatabase object in a JSON format
