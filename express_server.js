@@ -41,17 +41,16 @@ app.post("/login", (req, res) => {
   res.redirect(302, "/urls");
 });
 
-// app.get("/urls/:shortURL?", (req, res) => {
-//   let shortURL = req.params.shortURL;
-//   res.redirect(302, `/urls/:${shortURL}`)
-// })
-
 // post request to delete a key of the object
 app.post("/urls/:shortURL/delete", (req, res) => {  //
   let shortURL = req.params.shortURL;
   delete urlDatabase[shortURL];
-  res.redirect("/urls")
+  res.redirect(302, "/urls")
 })
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect(302, "/urls")});
 
 // app.get("/", (req, res) => {            // homepage is useless for now        
 //   res.send("Hello!");
@@ -62,18 +61,23 @@ app.get("/urls.json", (req, res) => {       // displays our urlDatabase object i
 })
 
 app.get("/urls", (req, res) => {            // templateVars is assigned to an object. res.render is middleware through the HTML
-  let templateVars = { urls: urlDatabase }; // in urls_index. checking it, we'll see a for in loop is ran to output
-  res.render("urls_index", templateVars);   // each key-value property in a 2-columns table.
+  let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
+    urls: urlDatabase,                      // each key-value property in a 2-columns table.
+    username: req.cookies["username"] };    
+  res.render("urls_index", templateVars);   
 })
 
-app.get("/urls/new", (req, res) => {        // provides a form where a longURL can be entered. when the request is sent (through
-  res.render("urls_new");                   // the submit button), line 23 will pick up that post request
+app.get("/urls/new", (req, res) => {
+  let templateVars = {                      // provides a form where a longURL can be entered. when the request is sent (through
+    username: req.cookies["username"],      // the submit button), line 23 will pick up that post request
+  }        
+  res.render("urls_new", templateVars);                   
 })
 
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  let templateVars = { shortURL, longURL };
+  let templateVars = { shortURL, longURL, username: req.cookies["username"] };
   res.render("urls_show", templateVars);
 })
 
