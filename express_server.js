@@ -52,7 +52,7 @@ app.post("/urls/:shortURL", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.cookie("username", req.body.username);
+  res.cookie("username", req.body.username); // <---- check what to do with this. should have an if/else ?
   res.redirect(302, "/urls");
 });
 
@@ -64,7 +64,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {  //
 })
 
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect(302, "/urls")});
 
 app.post("/register", (req, res) => {
@@ -74,26 +74,25 @@ app.post("/register", (req, res) => {
   users[userID].email = req.body.email;
   users[userID].password = req.body.password;
   res.cookie("user_id", userID);
-  res.redirect(302, "/urls")
+  res.redirect(302, "/urls");
 })
-// app.get("/", (req, res) => {            // homepage is useless for now        
-//   res.send("Hello!");
-// });
 
 app.get("/urls.json", (req, res) => {       // displays our urlDatabase object in a JSON format
   res.json(urlDatabase);
 })
 
-app.get("/urls", (req, res) => {            // templateVars is assigned to an object. res.render is middleware through the HTML
+app.get("/urls", (req, res) => {  
+  const user = users[req.cookies.user_id];         // templateVars is assigned to an object. res.render is middleware through the HTML
   let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
     urls: urlDatabase,                      // each key-value property in a 2-columns table.
-    username: req.cookies["username"] };    
+    user: user
+  };  
   res.render("urls_index", templateVars);   
 })
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {                      // provides a form where a longURL can be entered. when the request is sent (through
-    username: req.cookies["username"],      // the submit button), line 23 will pick up that post request
+    user: users[req.cookies.user_id],      // the submit button), line 23 will pick up that post request
   }        
   res.render("urls_new", templateVars);                   
 })
@@ -105,7 +104,7 @@ app.get("/register", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL];
-  let templateVars = { shortURL, longURL, username: req.cookies["username"] };
+  let templateVars = { shortURL, longURL, user: users[req.cookies.user_id] };
   res.render("urls_show", templateVars);
 })
 
