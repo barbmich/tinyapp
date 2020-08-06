@@ -2,7 +2,7 @@
 // enstablishing constant variables that need to be defined first
 const express = require("express");
 const bodyParser = require("body-parser");
-const cookieParser = require("cookie-parser");
+const cookieSession = require("cookie-session")
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const app = express();
@@ -11,7 +11,11 @@ const PORT = 8080; // default port 8080
 // allows the use of Express js framework and body-parser, a body parsing middleware
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['test1', 'test2'],
+  })
+);
 
 // stores all links generated
 const urlDatabase = {
