@@ -47,7 +47,7 @@ app.post("/login", (req, res) => {
     req.session.user_id = user.id;
     res.redirect("/urls");
   } else {
-    res.redirect(400, "/login");
+    res.status(400).send("Incorrect credentials entered!");
   }
 });
 
@@ -73,15 +73,17 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-
+  if (!email || !password) {
+    return res.status(400).send("Missing credentials!");
+  }
   let user = getUserByEmail(email, users);
 
   if (!user) {
-    const newUserID = addNewUser(email, password);
+    const newUserID = addNewUser(email, password)
     req.session.user_id = newUserID.id;
     res.redirect(302, "/urls");
   } else {
-    res.redirect(400, "/login"); // <----------------- see if you can also send a friendly message!
+    res.status(400).send("E-mail already in use!"); // <----------------- see if you can also send a friendly message!
   }
 });
 
@@ -123,12 +125,19 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
+  if (req.session.user_id) {
+    res.redirect(302, "/urls");
+  } else {
   res.render("urls_register");
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
-  const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL] ? urlDatabase[shortURL].longURL : res.status(404).send("This shortURL does not exist!");
+  const shortURL = req.params.shortURL;  
+  const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
+  if(!longURL) {
+  return res.status(404).send("This shortURL does not exist!");
+  }
   // const longURL = urlDatabase[shortURL].longURL;
   const user = users[req.session.user_id];
   if (user) {
