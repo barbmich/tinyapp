@@ -44,6 +44,15 @@ function generateRandomString() {
   return Math.random().toString(36).substring(2, 8)
 };
 
+const addNewUser = (email, password) => {
+  const userID = generateRandomString();
+  users[userID] = {};
+  users[userID].id = userID;
+  users[userID].email = email;
+  users[userID].password = bcrypt.hashSync(password, saltRounds);
+  return users[userID];
+}
+
 // if user exists in db, returns user obj, else returns false
 const findUserByEmail = (email) => {
   for (let user in users) {
@@ -56,21 +65,12 @@ const findUserByEmail = (email) => {
 
 const authenticateUser = (email, password) => {
   const user = findUserByEmail(email);
-  if (user && user.password === password) {
+  if (user && bcrypt.compareSync(password, user.password)) {
     return user;
   } else {
     return false;
   }
 };
-
-const addNewUser = (email, password) => {
-  const userID = generateRandomString();
-  users[userID] = {};
-  users[userID].id = userID;
-  users[userID].email = email;
-  users[userID].password = password;
-  return users[userID];
-}
 
 const urlsForUser = function (user) {
   const output = {};
@@ -117,7 +117,7 @@ app.post("/login", (req, res) => {
     res.cookie("user_id", user.id);
     res.redirect("/urls");
   } else {
-    res.sendStatus(400).redirect("/login");
+    res.redirect(400, "/login");
   }
 });
 
@@ -152,7 +152,7 @@ app.post("/register", (req, res) => {
     res.cookie("user_id", newUserID.id);
     res.redirect(302, "/urls");
   } else {
-    res.sendStatus(400); // <----------------- see if you can also send a friendly message!
+    res.redirect(400, "/login"); // <----------------- see if you can also send a friendly message!
   }
 });
 
@@ -168,6 +168,10 @@ app.get("/", (req, res) => {
 
 app.get("/urls.json", (req, res) => {       // displays our urlDatabase object in a JSON format
   res.json(urlDatabase);
+})
+
+app.get("/users.json", (req, res) => {
+  res.json(users);
 })
 
 app.get("/urls", (req, res) => {
