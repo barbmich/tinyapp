@@ -3,6 +3,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const e = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -55,7 +56,7 @@ function accountValidity(email, password) {
   return true
 };
 
-const urlsForUser = function(user) {
+const urlsForUser = function (user) {
   const output = {};
   if (user === undefined) {
     return undefined
@@ -73,11 +74,11 @@ const urlsForUser = function(user) {
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();   // it assign randomized 6-digit value to shortURL, 
   const longURL = req.body.longURL;
-  const userID = req.cookies.user_id
+  const userID = req.cookies.user_id;
   urlDatabase[shortURL] = {};              // key longURL attached to the parsed body of the request form.
   urlDatabase[shortURL].longURL = longURL; // it adds the shortURL-longURL key-value to our initial urlDatabase object.
   urlDatabase[shortURL].userID = userID;
-  res.redirect(302, "/urls");              // redirects the user to a webpage that outputs the newly created key-value
+  res.redirect(302, `/urls/${shortURL}`);              // redirects the user to a webpage that outputs the newly created key-value
 });
 
 app.post("/urls/:shortURL", (req, res) => {
@@ -115,11 +116,14 @@ app.post("/login", (req, res) => {
 // post request to delete a key of the object
 app.post("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
-  if (req.cookies.user_id === urlDatabase[shortURL].userID) {
+  
+  if (req.cookies.user_id === undefined) {
+    res.send("Login to delete this URL!");
+  } else if (req.cookies.user_id === urlDatabase[shortURL].userID) {
     delete urlDatabase[shortURL];
     res.redirect(302, "/urls");
   } else {
-    res.send("Login to delete this URL!");
+    res.send("This link does not belong to you, no touchy!");
   }
 })
 
@@ -143,6 +147,16 @@ app.post("/register", (req, res) => {
     res.redirect(302, "/urls");
   } else {
     res.redirect(400, "/urls");
+  }
+})
+
+app.get("/", (req, res) => {
+  let user = users[req.cookies.user_id];
+  if (user) {
+    res.redirect(302, "/urls");
+  }
+  else {
+    res.redirect(302, "/login");
   }
 })
 
@@ -176,7 +190,8 @@ app.get("/register", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
+  const longURL = urlDatabase[shortURL] ? urlDatabase[shortURL].longURL : res.status(404).send("This shortURL does not exist!");
+  // const longURL = urlDatabase[shortURL].longURL;
   const user = users[req.cookies.user_id];
   if (user) {
     if (user.id === urlDatabase[shortURL].userID) {
