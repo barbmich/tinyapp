@@ -33,9 +33,9 @@
           <td><%= url %></td>
           <td><%= urls[url].longURL %></td>
           <td>
-            <a href="/urls/<%= url %>">
-              <button class="btn btn-primary">Edit</button>
-            </a>
+            <form method="GET" action="/urls/<%= url %>/">
+              <button type class="btn btn-success">Edit</button>
+            </form>
           </td>
           <td>
             <form method="POST" action="/urls/<%= url %>/delete">
