@@ -159,11 +159,10 @@ app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], t
   res.render("urls_show", templateVars);
 })
 
-app.get("/u/:shortURL", (req, res) => {     // get request that allows us to reach the longURL address through the shortURL link.
-  const shortURL = req.params.shortURL;     // the req.params refers to the id in the address. when a get request is made,
-  const longURL = urlDatabase[shortURL].longURL;
-  console.log(longURL)    // the server checks if a key matching shortURL exists. if so, the user is redirected
-  res.redirect(302, longURL);               // to the longURL address.
+app.get("/u/:shortURL", (req, res) => {           // get request that allows us to reach the longURL address through the shortURL link.
+  const shortURL = req.params.shortURL;           // the req.params refers to the id in the address. when a get request is made,
+  const longURL = urlDatabase[shortURL].longURL;  // the server redirects to the longURL address value.
+  res.redirect(302, longURL);
 })
 
 app.get("/login", (req, res) => {

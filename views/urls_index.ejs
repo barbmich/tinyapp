@@ -16,6 +16,7 @@
 <body>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
+    <% if (user) { %>
     <table class="table">
       <thead>
         <tr>
@@ -26,6 +27,7 @@
         </tr>
       </thead>
       <tbody>
+        
         <% for(let url in urls) { %>
         <tr>
           <td><%= url %></td>
@@ -41,9 +43,12 @@
             </form>
           </td>
         </tr>
-        <% } %>
+        <% } } else {%>
+         
       </tbody>
     </table>
+    <p>Login to see the shortURLs you have created!</p>
+    <% } %>
   </main>
   <!-- Bootstrap JS -->
   <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
