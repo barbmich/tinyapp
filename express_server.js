@@ -71,9 +71,9 @@ const urlsForUser = function(user) {
 
 // process the request form for a shortURL:
 app.post("/urls", (req, res) => {
-  let shortURL = generateRandomString();   // it assign randomized 6-digit value to shortURL, 
-  let longURL = req.body.longURL;
-  let userID = req.cookies.user_id
+  const shortURL = generateRandomString();   // it assign randomized 6-digit value to shortURL, 
+  const longURL = req.body.longURL;
+  const userID = req.cookies.user_id
   urlDatabase[shortURL] = {};              // key longURL attached to the parsed body of the request form.
   urlDatabase[shortURL].longURL = longURL; // it adds the shortURL-longURL key-value to our initial urlDatabase object.
   urlDatabase[shortURL].userID = userID;
@@ -83,8 +83,12 @@ app.post("/urls", (req, res) => {
 app.post("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
-  urlDatabase[shortURL].longURL = longURL;
-  res.redirect(302, "/urls");
+  if (req.cookies.user_id === urlDatabase[shortURL].userID) {
+    urlDatabase[shortURL].longURL = longURL;
+    res.redirect(302, "/urls");
+  } else {
+    res.send("You can't edit an URL that you did not create!")
+  }
 });
 
 app.post("/login", (req, res) => {
