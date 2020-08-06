@@ -14,12 +14,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
   name: 'session',
   keys: ['test1', 'test2'],
-  })
-);
+}));
 
 // process the request form for a shortURL:
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString(); // it assign randomized 6-digit value to shortURL, 
+  const shortURL = generateRandomString(); // it assign randomized 6-digit value to shortURL,
   const longURL = req.body.longURL;
   const userID = req.session.user_id;
   urlDatabase[shortURL] = {};              // key longURL attached to the parsed body of the request form.
@@ -35,7 +34,7 @@ app.post("/urls/:shortURL", (req, res) => {
     urlDatabase[shortURL].longURL = longURL;
     res.redirect(302, "/urls");
   } else {
-    res.send("You can't edit an URL that you did not create!")
+    res.send("You can't edit an URL that you did not create!");
   }
 });
 
@@ -64,7 +63,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   } else {
     res.send("This link does not belong to you, no touchy!");
   }
-})
+});
 
 app.post("/logout", (req, res) => {
   req.session = null;
@@ -78,7 +77,7 @@ app.post("/register", (req, res) => {
   let user = getUserByEmail(email, users);
 
   if (!user) {
-    const newUserID = addNewUser(email, password)
+    const newUserID = addNewUser(email, password);
     req.session.user_id = newUserID.id;
     res.redirect(302, "/urls");
   } else {
@@ -90,19 +89,18 @@ app.get("/", (req, res) => {
   let user = users[req.session.user_id];
   if (user) {
     res.redirect(302, "/urls");
-  }
-  else {
+  } else {
     res.redirect(302, "/login");
   }
-})
+});
 
 app.get("/urls.json", (req, res) => {       // displays our urlDatabase object in a JSON format
   res.json(urlDatabase);
-})
+});
 
 app.get("/users.json", (req, res) => {
   res.json(users);
-})
+});
 
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];  // templateVars is assigned to an object. res.render is middleware through the HTML
@@ -111,22 +109,22 @@ app.get("/urls", (req, res) => {
     user: user
   };
   res.render("urls_index", templateVars);
-})
+});
 
 app.get("/urls/new", (req, res) => {
   let templateVars = {                      // provides a form where a longURL can be entered. when the request is sent (through
     user: users[req.session.user_id],      // the submit button), line 23 will pick up that post request
-  }
-  if (!templateVars.user) {
-    res.redirect("/login")
-  } else {
-    res.render("urls_new", templateVars)
   };
-})
+  if (!templateVars.user) {
+    res.redirect("/login");
+  } else {
+    res.render("urls_new", templateVars);
+  }
+});
 
 app.get("/register", (req, res) => {
-  res.render("urls_register")
-})
+  res.render("urls_register");
+});
 
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
   const shortURL = req.params.shortURL;
@@ -138,29 +136,29 @@ app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], t
       let templateVars = { shortURL, longURL, user: user };
       res.render("urls_show", templateVars);
     } else {
-      res.send("You're trying to access an URL that does not belong to you!")
+      res.send("You're trying to access an URL that does not belong to you!");
     }
   } else {
-    res.send("Log in to access this URL!")
+    res.send("Log in to access this URL!");
   }
-})
+});
 
 app.get("/u/:shortURL", (req, res) => {           // get request that allows us to reach the longURL address through the shortURL link.
   const shortURL = req.params.shortURL;           // the req.params refers to the id in the address. when a get request is made,
   const longURL = urlDatabase[shortURL].longURL;  // the server redirects to the longURL address value.
   res.redirect(302, longURL);
-})
+});
 
 app.get("/login", (req, res) => {
   if (req.session.user_id) {
-    res.redirect(302, "/urls")
+    res.redirect(302, "/urls");
   } else {
     const templateVars = { error: "" };
     res.render("urls_login", templateVars);
   }
-})
+});
 
 
-app.listen(PORT, () => {                                  // allows the server to listen for requests made on a specific port (defined at the top) 
+app.listen(PORT, () => {                                  // allows the server to listen for requests made on a specific port (defined at the top)
   console.log(`Example app listening on port ${PORT}!`);
 });
