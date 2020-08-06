@@ -9,7 +9,7 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New TinyURL</a>
         <% if (user) { %>
-        Logged in as: <%= user.email %>
+        <div class="nav-item text-info">Logged in as: <%= user.email %></div>
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-danger">Logout</button>
         </form>

@@ -101,16 +101,13 @@ app.post("/login", (req, res) => {
       if (users[user].password === password) {
         res.cookie("user_id", users[user].id);
         res.redirect("/urls");
-        return;
       }
       else {
-        res.sendStatus(403);
-        return;
+        res.sendStatus(400).redirect("/login");
       }
     }
   }
-  res.sendStatus(403);
-
+  res.sendStatus(400).redirect("/login");
 });
 
 // post request to delete a key of the object
@@ -146,7 +143,7 @@ app.post("/register", (req, res) => {
     res.cookie("user_id", userID);
     res.redirect(302, "/urls");
   } else {
-    res.redirect(400, "/urls");
+    res.sendStatus(400).send("Missing credentials!");
   }
 })
 
@@ -212,8 +209,12 @@ app.get("/u/:shortURL", (req, res) => {           // get request that allows us 
 })
 
 app.get("/login", (req, res) => {
-  const templateVars = { error: "" };
-  res.render("urls_login", templateVars);
+  if (req.cookies.user_id) {
+    res.redirect(302, "/urls")
+  } else {
+    const templateVars = { error: "" };
+    res.render("urls_login", templateVars);
+  }
 })
 
 
