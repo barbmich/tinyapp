@@ -28,7 +28,7 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur"
+    password: "ooo"
   },
   "user2RandomID": {
     id: "user2RandomID",
@@ -54,6 +54,20 @@ function accountValidity(email, password) {
   }
   return true
 };
+
+const urlsForUser = function(user) {
+  const output = {};
+  if (user === undefined) {
+    return undefined
+  } else {
+    for (const url in urlDatabase) {
+      if (urlDatabase[url].userID === user.id) {
+        output[url] = urlDatabase[url]
+      }
+    }
+  }
+  return output;
+}
 
 // process the request form for a shortURL:
 app.post("/urls", (req, res) => {
@@ -95,10 +109,14 @@ app.post("/login", (req, res) => {
 });
 
 // post request to delete a key of the object
-app.post("/urls/:shortURL/delete", (req, res) => {  //
+app.post("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
-  delete urlDatabase[shortURL];
-  res.redirect(302, "/urls");
+  if (req.cookies.user_id === urlDatabase[shortURL].userID) {
+    delete urlDatabase[shortURL];
+    res.redirect(302, "/urls");
+  } else {
+    res.send("Login to delete this URL!");
+  }
 })
 
 app.post("/logout", (req, res) => {
@@ -131,7 +149,7 @@ app.get("/urls.json", (req, res) => {       // displays our urlDatabase object i
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];  // templateVars is assigned to an object. res.render is middleware through the HTML
   let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
-    urls: urlDatabase,                      // each key-value property in a 2-columns table.
+    urls: urlsForUser(user),                    // each key-value property in a 2-columns table.
     user: user
   };
   res.render("urls_index", templateVars);
@@ -155,8 +173,17 @@ app.get("/register", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
   const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
-  let templateVars = { shortURL, longURL, user: users[req.cookies.user_id] };
-  res.render("urls_show", templateVars);
+  const user = users[req.cookies.user_id];
+  if (user) {
+    if (user.id === urlDatabase[shortURL].userID) {
+      let templateVars = { shortURL, longURL, user: user };
+      res.render("urls_show", templateVars);
+    } else {
+      res.send("You're trying to access an URL that does not belong to you!")
+    }
+  } else {
+    res.send("Log in to access this URL!")
+  }
 })
 
 app.get("/u/:shortURL", (req, res) => {           // get request that allows us to reach the longURL address through the shortURL link.
