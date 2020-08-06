@@ -8,7 +8,7 @@ const { users, urlDatabase } = require("./database");
 const app = express();
 const PORT = 8080; // default port 8080
 
-// allows the use of Express js framework and body-parser, a body parsing middleware
+// sets the use of middlewares EJS, body-parser and cookie-session through Express.
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieSession({
@@ -16,79 +16,6 @@ app.use(cookieSession({
   keys: ['test1', 'test2'],
   })
 );
-
-// stores all links generated
-// const urlDatabase = {
-//   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
-//   "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID" }
-// };
-
-/* old database object:
-urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com",
-}*/
-
-//
-// const users = {
-//   "userRandomID": {
-//     id: "userRandomID",
-//     email: "user@example.com",
-//     password: "ooo"
-//   },
-//   "user2RandomID": {
-//     id: "user2RandomID",
-//     email: "user2@example.com",
-//     password: "ppp"
-//   }
-// }
-
-// generates 6-digits random value in base 36 (alpha-numerical values)
-// function generateRandomString() {
-//   return Math.random().toString(36).substring(2, 8)
-// };
-
-// const addNewUser = (email, password) => {
-//   const userID = generateRandomString();
-//   users[userID] = {};
-//   users[userID].id = userID;
-//   users[userID].email = email;
-//   users[userID].password = bcrypt.hashSync(password, saltRounds);
-//   return users[userID];
-// }
-
-// if user exists in db, returns user obj, else returns false
-// const getUserByEmail = (email, database) => {
-//   for (let user in database) {
-//     if (database[user].email === email) {
-//       return database[user];
-//     }
-//   }
-//   return false;
-// };
-
-// const authenticateUser = (email, password) => {
-//   const user = getUserByEmail(email, users);
-//   if (user && bcrypt.compareSync(password, user.password)) {
-//     return user;
-//   } else {
-//     return false;
-//   }
-// };
-
-// const urlsForUser = function (user) {
-//   const output = {};
-//   if (user === undefined) {
-//     return undefined
-//   } else {
-//     for (const url in urlDatabase) {
-//       if (urlDatabase[url].userID === user.id) {
-//         output[url] = urlDatabase[url]
-//       }
-//     }
-//   }
-//   return output;
-// }
 
 // process the request form for a shortURL:
 app.post("/urls", (req, res) => {
