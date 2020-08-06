@@ -63,18 +63,14 @@ const authenticateUser = (email, password) => {
   }
 };
 
-function accountValidity(email, password) {
-  if (!email || !password) {
-    console.log('failed: missing data in the form!')
-    return false;
-  }
-  for (const user in users) {
-    if (users[user].email === email) {
-      return false;
-    }
-  }
-  return true
-};
+const addNewUser = (email, password) => {
+  const userID = generateRandomString();
+  users[userID] = {};
+  users[userID].id = userID;
+  users[userID].email = email;
+  users[userID].password = password;
+  return users[userID];
+}
 
 const urlsForUser = function (user) {
   const output = {};
@@ -116,18 +112,13 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  for (const user in users) {
-    if (users[user].email === email) {
-      if (users[user].password === password) {
-        res.cookie("user_id", users[user].id);
-        res.redirect("/urls");
-      }
-      else {
-        res.sendStatus(400).redirect("/login");
-      }
-    }
+  let user = authenticateUser(email, password);
+  if (user) {
+    res.cookie("user_id", user.id);
+    res.redirect("/urls");
+  } else {
+    res.sendStatus(400).redirect("/login");
   }
-  res.sendStatus(400).redirect("/login");
 });
 
 // post request to delete a key of the object
@@ -153,19 +144,17 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  if (accountValidity(email, password)) {
-    let userID = generateRandomString();
-    users[userID] = {}
-    users[userID].id = userID;
-    users[userID].email = email;
-    users[userID].password = password;
+  let user = findUserByEmail(email);
+
+  if (!user) {
+    const newUserID = addNewUser(email, password)
     // console.log('new user registered!')
-    res.cookie("user_id", userID);
+    res.cookie("user_id", newUserID.id);
     res.redirect(302, "/urls");
   } else {
-    res.sendStatus(400).send("Missing credentials!");
+    res.sendStatus(400); // <----------------- see if you can also send a friendly message!
   }
-})
+});
 
 app.get("/", (req, res) => {
   let user = users[req.cookies.user_id];
@@ -184,7 +173,7 @@ app.get("/urls.json", (req, res) => {       // displays our urlDatabase object i
 app.get("/urls", (req, res) => {
   const user = users[req.cookies.user_id];  // templateVars is assigned to an object. res.render is middleware through the HTML
   let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
-    urls: urlsForUser(user),                    // each key-value property in a 2-columns table.
+    urls: urlsForUser(user),                // each key-value property in a 2-columns table.
     user: user
   };
   res.render("urls_index", templateVars);
