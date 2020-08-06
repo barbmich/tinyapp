@@ -3,7 +3,8 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
-const e = require("express");
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 const app = express();
 const PORT = 8080; // default port 8080
 
@@ -41,6 +42,25 @@ const users = {
 // generates 6-digits random value in base 36 (alpha-numerical values)
 function generateRandomString() {
   return Math.random().toString(36).substring(2, 8)
+};
+
+// if user exists in db, returns user obj, else returns false
+const findUserByEmail = (email) => {
+  for (let user in users) {
+    if (users[user].email === email) {
+      return users[user];
+    }
+  }
+  return false;
+};
+
+const authenticateUser = (email, password) => {
+  const user = findUserByEmail(email);
+  if (user && user.password === password) {
+    return user;
+  } else {
+    return false;
+  }
 };
 
 function accountValidity(email, password) {
