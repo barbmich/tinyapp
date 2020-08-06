@@ -5,20 +5,20 @@
       <span class="navbar-toggler-icon"></span>
     </button> -->
     <div class="collapse navbar-collapse">
-      <div class="navbar-nav">
+      <div class="navbar-nav mr-auto"> <!-- mr-auto sets margin to the right -->
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New TinyURL</a>
+      </div>
         <% if (user) { %>
-        <div class="nav-item text-info">Logged in as: <%= user.email %></div>
+        <div class="nav-item mr-4 text-info">Logged in as: <%= user.email %></div>
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-danger">Logout</button>
         </form>
       <% }
         else { %>
-          <a href="/login">Login</a>
+          <a class="mr-4" href="/login">Login</a>
           <a href="/register">Register</a>
         <% } %> 
-      </div>
     </div>
   </nav>
 </header>
