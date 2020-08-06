@@ -9,11 +9,11 @@ const users = {
     email: "user2@example.com",
     password: "ppp"
   }
-}
+};
 
 const urlDatabase = {
   "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "userRandomID" },
   "9sm5xK": { longURL: "http://www.google.com", userID: "user2RandomID" }
 };
 
-module.exports = { users, urlDatabase }
+module.exports = { users, urlDatabase };

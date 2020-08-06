@@ -2,8 +2,8 @@ const { users, urlDatabase } = require("./database");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
-function generateRandomString() {
-  return Math.random().toString(36).substring(2, 8)
+const generateRandomString = function() {
+  return Math.random().toString(36).substring(2, 8);
 };
 
 const addNewUser = (email, password) => {
@@ -33,18 +33,18 @@ const authenticateUser = (email, password) => {
   }
 };
 
-const urlsForUser = function (user) {
+const urlsForUser = function(user) {
   const output = {};
   if (user === undefined) {
-    return undefined
+    return undefined;
   } else {
     for (const url in urlDatabase) {
       if (urlDatabase[url].userID === user.id) {
-        output[url] = urlDatabase[url]
+        output[url] = urlDatabase[url];
       }
     }
   }
   return output;
-}
+};
 
-module.exports = { addNewUser, generateRandomString, getUserByEmail, authenticateUser, urlsForUser }
+module.exports = { addNewUser, generateRandomString, getUserByEmail, authenticateUser, urlsForUser };
