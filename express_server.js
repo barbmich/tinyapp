@@ -18,9 +18,12 @@ app.use(cookieSession({
 
 
 // process the request form to generate a shortURL:
-// random generated shortURL, longURL provided in the form, and uses userID from the cookie to create a new entry on the urlDatabase.
+// generates random userID, 
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString();
+  let shortURL;
+  do {
+    shortURL = generateRandomString();
+  } while (users[shortURL]);
   const longURL = req.body.longURL;
   const userID = req.session.user_id;
   urlDatabase[shortURL] = {};

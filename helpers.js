@@ -1,4 +1,4 @@
-const { users, urlDatabase: database } = require("./database");
+const { users, urlDatabase } = require("./database");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -10,7 +10,10 @@ const generateRandomString = function() {
 // takes email and password parameters from /urls/register route, creates a new user
 // entry in the users database, hashes its password, and returns the object created.
 const addNewUser = (email, password) => {
-  const userID = generateRandomString();
+  let userID;
+  do {
+    userID = generateRandomString();
+  } while (users[userID]);
   users[userID] = {};
   users[userID].id = userID;
   users[userID].email = email;
