@@ -6,7 +6,7 @@ const cookieSession = require("cookie-session");
 const { addNewUser, generateRandomString, getUserByEmail, authenticateUser, urlsForUser } = require("./helpers");
 const { users, urlDatabase } = require("./database");
 const app = express();
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 
 // sets the use of middlewares EJS, body-parser and cookie-session through Express.
 app.set('view engine', 'ejs');
@@ -16,17 +16,20 @@ app.use(cookieSession({
   keys: ['test1', 'test2'],
 }));
 
-// process the request form for a shortURL:
+
+// process the request form to generate a shortURL:
+// random generated shortURL, longURL provided in the form, and uses userID from the cookie to create a new entry on the urlDatabase.
 app.post("/urls", (req, res) => {
-  const shortURL = generateRandomString(); // it assign randomized 6-digit value to shortURL,
+  const shortURL = generateRandomString();
   const longURL = req.body.longURL;
   const userID = req.session.user_id;
-  urlDatabase[shortURL] = {};              // key longURL attached to the parsed body of the request form.
-  urlDatabase[shortURL].longURL = longURL; // it adds the shortURL-longURL key-value to our initial urlDatabase object.
+  urlDatabase[shortURL] = {};
+  urlDatabase[shortURL].longURL = longURL;
   urlDatabase[shortURL].userID = userID;
-  res.redirect(302, `/urls/${shortURL}`);  // redirects the user to a webpage that outputs the newly created key-value
+  res.redirect(302, `/urls/${shortURL}`);
 });
 
+// edits a currently existing entry:
 app.post("/urls/:shortURL", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
@@ -38,6 +41,8 @@ app.post("/urls/:shortURL", (req, res) => {
   }
 });
 
+// process a login form:
+// uses authenticateUser to confirm credentials entered.
 app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
