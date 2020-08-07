@@ -5,6 +5,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const { addNewUser, generateRandomString, getUserByEmail, authenticateUser, userUrls } = require("./helpers");
 const { users, urlDatabase } = require("./database");
+const { use } = require("chai");
 const app = express();
 const PORT = 8080;
 
@@ -18,7 +19,6 @@ app.use(cookieSession({
 
 
 // process the request form to generate a shortURL:
-// generates random userID, 
 app.post("/urls", (req, res) => {
   let shortURL;
   do {
@@ -59,7 +59,9 @@ app.post("/login", (req, res) => {
   }
 });
 
-// post request to delete a key of the object
+// post request to delete a key of the url db:
+// if cookie confirm user logged is the one who entered the url,
+// url key is deleted.
 app.post("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
   
@@ -73,11 +75,15 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   }
 });
 
+// post logout request
 app.post("/logout", (req, res) => {
   req.session = null;
   res.redirect(302, "/urls");
 });
 
+// post register request:
+// checks if any of the fields is empty, checks if email has already in use,
+// if not adds new user to users db and assigns cookie session
 app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -95,6 +101,7 @@ app.post("/register", (req, res) => {
   }
 });
 
+// "root" of project redirect, minor requirement
 app.get("/", (req, res) => {
   let user = users[req.session.user_id];
   if (user) {
@@ -104,10 +111,12 @@ app.get("/", (req, res) => {
   }
 });
 
-app.get("/urls.json", (req, res) => {       // displays our urlDatabase object in a JSON format
+// displays urlDatabase object in a JSON format
+app.get("/urls.json", (req, res) => {       
   res.json(urlDatabase);
 });
 
+// displays users db object in a JSON format (not requested, used for users tracking)
 app.get("/users.json", (req, res) => {
   res.json(users);
 });
