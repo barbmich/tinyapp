@@ -41,14 +41,16 @@ const authenticateUser = (email, password) => {
   }
 };
 
+// used on on the index route /urls, given a user and a database, returns an object
+// with all entries created by the user
 const userUrls = function(user, database) {
   const output = {};
   if (user === undefined) {
     return undefined;
   } else {
-    for (const url in database) {
-      if (database[url].userID === user.id) {
-        output[url] = database[url];
+    for (const entry in database) {
+      if (database[entry].userID === user.id) {
+        output[entry] = database[entry];
       }
     }
   }
