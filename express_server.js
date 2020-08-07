@@ -121,18 +121,22 @@ app.get("/users.json", (req, res) => {
   res.json(users);
 });
 
+// templateVars is assigned to an object. res.render takes an html and an object.
+// we'll see a for in loop is ran to output
+// each key-value property in a 2-columns table.
 app.get("/urls", (req, res) => {
-  const user = users[req.session.user_id];  // templateVars is assigned to an object. res.render is middleware through the HTML
-  let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
-    urls: userUrls(user, urlDatabase),                // each key-value property in a 2-columns table.
+  const user = users[req.session.user_id];  
+  let templateVars = {                      
+    urls: userUrls(user, urlDatabase),                
     user: user
   };
   res.render("urls_index", templateVars);
 });
 
+// get request that displays a form for new url entry
 app.get("/urls/new", (req, res) => {
-  let templateVars = {                      // provides a form where a longURL can be entered. when the request is sent (through
-    user: users[req.session.user_id],      // the submit button), line 23 will pick up that post request
+  let templateVars = {
+    user: users[req.session.user_id],
   };
   if (!templateVars.user) {
     res.redirect("/login");
@@ -149,29 +153,34 @@ app.get("/register", (req, res) => {
   }
 });
 
-app.get("/urls/:shortURL", (req, res) => {  // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
+// when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
+app.get("/urls/:shortURL", (req, res) => {  
   const shortURL = req.params.shortURL;  
   const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
   if(!longURL) {
   return res.status(404).send("This shortURL does not exist!");
   }
-  // const longURL = urlDatabase[shortURL].longURL;
   const user = users[req.session.user_id];
   if (user) {
+    // if user is the one who created this shortURL, is allowed to edited
     if (user.id === urlDatabase[shortURL].userID) {
       let templateVars = { shortURL, longURL, user: user };
       res.render("urls_show", templateVars);
     } else {
+      // if not the owner, is let known
       res.send("You're trying to access an URL that does not belong to you!");
     }
   } else {
+    // if not logged in
     res.send("Log in to access this URL!");
   }
 });
 
-app.get("/u/:shortURL", (req, res) => {           // get request that allows us to reach the longURL address through the shortURL link.
-  const shortURL = req.params.shortURL;           // the req.params refers to the id in the address. when a get request is made,
-  const longURL = urlDatabase[shortURL].longURL;  // the server redirects to the longURL address value.
+// get request that allows us to reach the longURL address through the shortURL link.
+// when the shortURL link is clicked, server redirects user to longURL available for that entry
+app.get("/u/:shortURL", (req, res) => {           
+  const shortURL = req.params.shortURL;           
+  const longURL = urlDatabase[shortURL].longURL;
   res.redirect(302, longURL);
 });
 
