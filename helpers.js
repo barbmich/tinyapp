@@ -1,4 +1,4 @@
-const { users, urlDatabase } = require("./database");
+const { users, urlDatabase: database } = require("./database");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
@@ -41,18 +41,18 @@ const authenticateUser = (email, password) => {
   }
 };
 
-const urlsForUser = function(user) {
+const userUrls = function(user, database) {
   const output = {};
   if (user === undefined) {
     return undefined;
   } else {
-    for (const url in urlDatabase) {
-      if (urlDatabase[url].userID === user.id) {
-        output[url] = urlDatabase[url];
+    for (const url in database) {
+      if (database[url].userID === user.id) {
+        output[url] = database[url];
       }
     }
   }
   return output;
 };
 
-module.exports = { addNewUser, generateRandomString, getUserByEmail, authenticateUser, urlsForUser };
+module.exports = { addNewUser, generateRandomString, getUserByEmail, authenticateUser, userUrls };

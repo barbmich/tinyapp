@@ -3,7 +3,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
-const { addNewUser, generateRandomString, getUserByEmail, authenticateUser, urlsForUser } = require("./helpers");
+const { addNewUser, generateRandomString, getUserByEmail, authenticateUser, userUrls } = require("./helpers");
 const { users, urlDatabase } = require("./database");
 const app = express();
 const PORT = 8080;
@@ -112,7 +112,7 @@ app.get("/users.json", (req, res) => {
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];  // templateVars is assigned to an object. res.render is middleware through the HTML
   let templateVars = {                      // in urls_index. checking it, we'll see a for in loop is ran to output
-    urls: urlsForUser(user),                // each key-value property in a 2-columns table.
+    urls: userUrls(user, urlDatabase),                // each key-value property in a 2-columns table.
     user: user
   };
   res.render("urls_index", templateVars);
