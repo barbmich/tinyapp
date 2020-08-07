@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const { addNewUser, generateRandomString, getUserByEmail, authenticateUser, userUrls } = require("./helpers");
 const { users, urlDatabase } = require("./database");
-const { use } = require("chai");
 const app = express();
 const PORT = 8080;
 
@@ -93,7 +92,7 @@ app.post("/register", (req, res) => {
   let user = getUserByEmail(email, users);
 
   if (!user) {
-    const newUserID = addNewUser(email, password)
+    const newUserID = addNewUser(email, password);
     req.session.user_id = newUserID.id;
     res.redirect(302, "/urls");
   } else {
@@ -112,7 +111,7 @@ app.get("/", (req, res) => {
 });
 
 // displays urlDatabase object in a JSON format
-app.get("/urls.json", (req, res) => {       
+app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
@@ -125,9 +124,9 @@ app.get("/users.json", (req, res) => {
 // we'll see a for in loop is ran to output
 // each key-value property in a 2-columns table.
 app.get("/urls", (req, res) => {
-  const user = users[req.session.user_id];  
-  let templateVars = {                      
-    urls: userUrls(user, urlDatabase),                
+  const user = users[req.session.user_id];
+  let templateVars = {
+    urls: userUrls(user, urlDatabase),
     user: user
   };
   res.render("urls_index", templateVars);
@@ -149,16 +148,16 @@ app.get("/register", (req, res) => {
   if (req.session.user_id) {
     res.redirect(302, "/urls");
   } else {
-  res.render("urls_register");
+    res.render("urls_register");
   }
 });
 
 // when accessing url /urls/[key], this will display specific longURL and shortURL info about that key
-app.get("/urls/:shortURL", (req, res) => {  
-  const shortURL = req.params.shortURL;  
+app.get("/urls/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
-  if(!longURL) {
-  return res.status(404).send("This shortURL does not exist!");
+  if (!longURL) {
+    return res.status(404).send("This shortURL does not exist!");
   }
   const user = users[req.session.user_id];
   if (user) {
@@ -178,8 +177,8 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // get request that allows us to reach the longURL address through the shortURL link.
 // when the shortURL link is clicked, server redirects user to longURL available for that entry
-app.get("/u/:shortURL", (req, res) => {           
-  const shortURL = req.params.shortURL;           
+app.get("/u/:shortURL", (req, res) => {
+  const shortURL = req.params.shortURL;
   const longURL = urlDatabase[shortURL].longURL;
   res.redirect(302, longURL);
 });

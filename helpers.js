@@ -1,4 +1,4 @@
-const { users, urlDatabase } = require("./database");
+const { users } = require("./database");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 
