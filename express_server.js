@@ -3,19 +3,26 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
-const { addNewUser, generateRandomString, getUserByEmail, authenticateUser, userUrls } = require("./helpers");
+const {
+  addNewUser,
+  generateRandomString,
+  getUserByEmail,
+  authenticateUser,
+  userUrls,
+} = require("./helpers");
 const { users, urlDatabase } = require("./database");
 const app = express();
-const PORT = 8080;
+const PORT = 8081;
 
 // sets the use of middlewares EJS, body-parser and cookie-session through Express.
-app.set('view engine', 'ejs');
+app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(cookieSession({
-  name: 'session',
-  keys: ['test1', 'test2'],
-}));
-
+app.use(
+  cookieSession({
+    name: "session",
+    keys: ["test1", "test2"],
+  })
+);
 
 // process the request form to generate a shortURL:
 app.post("/urls", (req, res) => {
@@ -28,6 +35,8 @@ app.post("/urls", (req, res) => {
   urlDatabase[shortURL] = {};
   urlDatabase[shortURL].longURL = longURL;
   urlDatabase[shortURL].userID = userID;
+  urlDatabase[shortURL].createdAt = new Date();
+  urlDatabase[shortURL].clicked = 0;
   res.redirect(302, `/urls/${shortURL}`);
 });
 
@@ -63,7 +72,7 @@ app.post("/login", (req, res) => {
 // url key is deleted.
 app.post("/urls/:shortURL/delete", (req, res) => {
   let shortURL = req.params.shortURL;
-  
+
   if (req.session.user_id === undefined) {
     res.send("Login to delete this URL!");
   } else if (req.session.user_id === urlDatabase[shortURL].userID) {
@@ -127,7 +136,7 @@ app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
   let templateVars = {
     urls: userUrls(user, urlDatabase),
-    user: user
+    user: user,
   };
   res.render("urls_index", templateVars);
 });
@@ -192,7 +201,7 @@ app.get("/login", (req, res) => {
   }
 });
 
-
-app.listen(PORT, () => {                                  // allows the server to listen for requests made on a specific port (defined at the top)
+app.listen(PORT, () => {
+  // allows the server to listen for requests made on a specific port (defined at the top)
   console.log(`Example app listening on port ${PORT}!`);
 });

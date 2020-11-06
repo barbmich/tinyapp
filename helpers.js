@@ -1,9 +1,9 @@
 const { users } = require("./database");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
 // creates a random 6-digits alphanumerical string to be used as ID.
-const generateRandomString = function() {
+const generateRandomString = function () {
   return Math.random().toString(36).substring(2, 8);
 };
 
@@ -46,7 +46,7 @@ const authenticateUser = (email, password) => {
 
 // used on on the index route /urls, given a user and a database, returns an object
 // with all entries created by the user
-const userUrls = function(user, database) {
+const userUrls = function (user, database) {
   const output = {};
   if (user === undefined) {
     return undefined;
@@ -60,4 +60,10 @@ const userUrls = function(user, database) {
   return output;
 };
 
-module.exports = { addNewUser, generateRandomString, getUserByEmail, authenticateUser, userUrls };
+module.exports = {
+  addNewUser,
+  generateRandomString,
+  getUserByEmail,
+  authenticateUser,
+  userUrls,
+};
