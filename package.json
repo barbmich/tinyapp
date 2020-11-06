@@ -2,6 +2,9 @@
   "name": "tinyapp",
   "version": "1.0.0",
   "description": "",
+  "engines": {
+    "node": "^10.16.1"
+  },
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/.bin/nodemon -L express_server.js",
