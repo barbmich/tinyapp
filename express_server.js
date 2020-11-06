@@ -12,7 +12,7 @@ const {
 } = require("./helpers");
 const { users, urlDatabase } = require("./database");
 const app = express();
-const PORT = 8081;
+const PORT = process.env.PORT || 8081;
 
 // sets the use of middlewares EJS, body-parser and cookie-session through Express.
 app.set("view engine", "ejs");
