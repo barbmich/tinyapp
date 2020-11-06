@@ -42,8 +42,8 @@ app.post("/urls", (req, res) => {
 
 // edits a currently existing entry:
 app.post("/urls/:shortURL", (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = req.body.longURL;
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
   if (req.session.user_id === urlDatabase[shortURL].userID) {
     urlDatabase[shortURL].longURL = longURL;
     res.redirect(302, "/urls");
@@ -58,7 +58,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
 
-  let user = authenticateUser(email, password);
+  const user = authenticateUser(email, password);
   if (user) {
     req.session.user_id = user.id;
     res.redirect("/urls");
@@ -71,7 +71,7 @@ app.post("/login", (req, res) => {
 // if cookie confirm user logged is the one who entered the url,
 // url key is deleted.
 app.post("/urls/:shortURL/delete", (req, res) => {
-  let shortURL = req.params.shortURL;
+  const shortURL = req.params.shortURL;
 
   if (req.session.user_id === undefined) {
     res.send("Login to delete this URL!");
@@ -98,7 +98,7 @@ app.post("/register", (req, res) => {
   if (!email || !password) {
     return res.status(400).send("Missing credentials!");
   }
-  let user = getUserByEmail(email, users);
+  const user = getUserByEmail(email, users);
 
   if (!user) {
     const newUserID = addNewUser(email, password);
@@ -111,7 +111,7 @@ app.post("/register", (req, res) => {
 
 // "root" of project redirect, minor requirement
 app.get("/", (req, res) => {
-  let user = users[req.session.user_id];
+  const user = users[req.session.user_id];
   if (user) {
     res.redirect(302, "/urls");
   } else {
@@ -134,7 +134,7 @@ app.get("/users.json", (req, res) => {
 // each key-value property in a 2-columns table.
 app.get("/urls", (req, res) => {
   const user = users[req.session.user_id];
-  let templateVars = {
+  const templateVars = {
     urls: userUrls(user, urlDatabase),
     user: user,
   };
@@ -143,7 +143,7 @@ app.get("/urls", (req, res) => {
 
 // get request that displays a form for new url entry
 app.get("/urls/new", (req, res) => {
-  let templateVars = {
+  const templateVars = {
     user: users[req.session.user_id],
   };
   if (!templateVars.user) {
@@ -172,7 +172,9 @@ app.get("/urls/:shortURL", (req, res) => {
   if (user) {
     // if user is the one who created this shortURL, is allowed to edited
     if (user.id === urlDatabase[shortURL].userID) {
-      let templateVars = { shortURL, longURL, user: user };
+      const createdAt = urlDatabase[shortURL].createdAt;
+      const clicked = urlDatabase[shortURL].clicked;
+      const templateVars = { shortURL, longURL, createdAt, clicked, user };
       res.render("urls_show", templateVars);
     } else {
       // if not the owner, is let known
@@ -188,8 +190,13 @@ app.get("/urls/:shortURL", (req, res) => {
 // when the shortURL link is clicked, server redirects user to longURL available for that entry
 app.get("/u/:shortURL", (req, res) => {
   const shortURL = req.params.shortURL;
-  const longURL = urlDatabase[shortURL].longURL;
-  res.redirect(302, longURL);
+  const longURL = urlDatabase[shortURL] && urlDatabase[shortURL].longURL;
+  if (!longURL) {
+    res.send("This TinyURL link does not exist!");
+  } else {
+    urlDatabase[shortURL].clicked += 1;
+    res.redirect(302, longURL);
+  }
 });
 
 app.get("/login", (req, res) => {

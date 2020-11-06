@@ -29,6 +29,7 @@
             <th scope="col">Short URL</th>
             <th scope="col">Long URL</th>
             <th scope="col">Date created</th>
+            <th scope="col">Times visited</th>
             <th scope="col">Edit URL</th>
             <th scope="col">Delete</th>
           </tr>
@@ -39,6 +40,7 @@
             <td><a href="/u/<%= url %>"><%= url %></a></td>
             <td><%= urls[url].longURL %></td>
             <th><%= urls[url].createdAt.toDateString() %></th>
+            <th><%= urls[url].clicked %></th>
             <td>
               <form method="GET" action="/urls/<%= url %>/">
                 <button type class="btn btn-success">Edit</button>

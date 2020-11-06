@@ -24,7 +24,7 @@ const addNewUser = (email, password) => {
 // uses an email parameter to check a database if a user with that
 // email exists. if so, returns user object (else, returns false)
 const getUserByEmail = (email, database) => {
-  for (let user in database) {
+  for (const user in database) {
     if (database[user].email === email) {
       return database[user];
     }
