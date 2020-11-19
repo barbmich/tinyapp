@@ -5,7 +5,7 @@ The project is available on [Heroku](https://barbmich-tinyapp.herokuapp.com/).
 
 ## Final Product
 
-This project took 4 days to create while learning the use of the dependencies packages.
+This is the first real project our cohort worked on, while learning the use of the dependencies packages.
 
 It allows:
 - Accounts creation with password hashing;
